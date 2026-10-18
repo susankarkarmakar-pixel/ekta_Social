@@ -35,7 +35,11 @@ export async function syncFeedCache(pageSize = 12): Promise<{ items: Post[]; upd
     ? posts.filter((post) => !post.isStory)
     : await supabaseFetch<Post[]>(`posts?select=*&order=created_at.desc&limit=${pageSize}`);
   const merged = [...source, ...cachedFeed];
-  const unique = [...new Map(merged.map((item) => [item.id, item])).values()];
+  const uniqueMap = new Map<string, Post>();
+  for (const item of merged) {
+    if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+  }
+  const unique = [...uniqueMap.values()];
   const previousSignature = JSON.stringify(cachedFeed);
   const nextSignature = JSON.stringify(unique);
   const updated = previousSignature !== nextSignature;
