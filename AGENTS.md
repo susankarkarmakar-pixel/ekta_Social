@@ -1,0 +1,11 @@
+# Rules for every task in this repo (eKta Social)
+- Stack: Expo SDK 57, Expo Router, React Native, NativeWind, TypeScript, Supabase, pnpm. No new runtime dependencies unless the task says so.
+- Bengali is the default language. Every user-visible string needs a Bengali and an English version in the existing language/copy files (lib/apongram/types.ts `copy`, lib/apongram/safety-copy.ts, etc.). No hard-coded English in components.
+- Use theme tokens (theme.config.js, constants/theme.ts). Do not add new hex colours. The brand terracotta is #B4492A.
+- Touch targets at least 44x44. Text at least 12px (Bengali 13px).
+- Never put a service-role key in client code. Never claim something is live or saved unless it is.
+- Demo mode (no Supabase configured) must keep working and be clearly labelled. Sample data must never appear when Supabase is configured.
+- Pure logic goes in files without React Native imports so vitest can test it (see lib/apongram/safety-core.ts).
+- Before finishing run: pnpm check, pnpm lint, pnpm test, pnpm exec expo export --platform web. All must pass. Do not weaken or delete existing tests.
+- One task = one branch = one small PR. Describe what changed, what was NOT done, and what could not be verified.
+- If the repo contradicts the task, stop and say so in the PR description instead of guessing.
