@@ -117,10 +117,6 @@ export function isRemoteMessagingConfigured(): boolean {
   return supabaseConfig.isConfigured;
 }
 
-export function getMessageParticipant(id: string): Profile | undefined {
-  return profiles.find((profile) => profile.id === id);
-}
-
 function toLocalMessage(row: RemoteMessageRow, userId: string): DirectMessage {
   return {
     id: row.id,

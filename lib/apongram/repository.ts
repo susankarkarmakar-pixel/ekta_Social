@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { commentsByPost, currentUser, demoReels, posts, profiles, topics } from "./mock-data";
 import { selectReels } from "./reel-utils";
+import { mapProfileRow } from "./profile-row";
 import { storagePublicUrl, supabaseConfig, supabaseFetch, uploadMedia } from "./supabase";
 import { getSupabaseSession } from "./supabase-auth";
 import type { Comment, MediaUpload, Post, Profile, VideoCompression, OverlayPosition, OverlaySticker } from "./types";
@@ -131,21 +132,20 @@ function toReel(row: ReelRow): Post | null {
 
   const remoteAuthor = row.author;
   const author: Profile = remoteAuthor?.id && remoteAuthor.name && remoteAuthor.handle
-    ? {
-        id: remoteAuthor.id,
-        name: remoteAuthor.name,
-        handle: remoteAuthor.handle,
-        bio: remoteAuthor.bio ?? "",
-        initials: remoteAuthor.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase(),
-        avatarColor: "#365C57",
-        avatarUrl: remoteAuthor.avatar_path?.startsWith("http") ? remoteAuthor.avatar_path : undefined,
-        region: remoteAuthor.region ?? "India",
-        pronouns: remoteAuthor.pronouns ?? undefined,
-        website: remoteAuthor.website ?? undefined,
-        category: remoteAuthor.category ?? undefined,
-        followers: 0,
-        following: 0,
-      }
+    ? mapProfileRow(
+        {
+          id: remoteAuthor.id,
+          name: remoteAuthor.name,
+          handle: remoteAuthor.handle,
+          bio: remoteAuthor.bio,
+          avatar_path: remoteAuthor.avatar_path,
+          region: remoteAuthor.region,
+          pronouns: remoteAuthor.pronouns,
+          website: remoteAuthor.website,
+          category: remoteAuthor.category,
+        },
+        (path) => storagePublicUrl("avatars", path)
+      )
     : currentUser;
 
   return {

@@ -1,14 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppState, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Avatar } from "@/components/apongram/Avatar";
 import { ScreenContainer } from "@/components/screen-container";
 import { Colors } from "@/constants/theme";
 import { currentUser } from "@/lib/apongram/mock-data";
-import { flushMessageQueue, getMessageParticipant, getMessageThread, markMessageThreadRead, sendDirectMessage, type DirectMessage } from "@/lib/apongram/messages";
+import { flushMessageQueue, getMessageThread, markMessageThreadRead, sendDirectMessage, type DirectMessage } from "@/lib/apongram/messages";
 import { subscribeToIncomingMessages } from "@/lib/apongram/message-realtime";
 import { useLanguage } from "@/lib/apongram/LanguageContext";
+import { useParticipant } from "@/lib/apongram/useParticipants";
 
 const C = Colors.light;
 
@@ -16,8 +17,8 @@ export default function MessageThreadScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const participantId = typeof id === "string" ? id : "";
-  const participant = useMemo(() => getMessageParticipant(participantId), [participantId]);
-  const { language } = useLanguage();
+  const { profile, loading } = useParticipant(participantId);
+  const { language, copy } = useLanguage();
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [body, setBody] = useState("");
   const [syncing, setSyncing] = useState(false);
@@ -64,21 +65,53 @@ export default function MessageThreadScreen() {
     setSyncing(false);
   };
 
-  if (!participant) {
+  if (!loading && !profile) {
     return <ScreenContainer safeAreaClassName="bg-background" className="bg-background"><View style={styles.invalid}><Text style={[styles.invalidText, { fontFamily: bodyFont }]}>{language === "bn" ? "এই profile পাওয়া যায়নি।" : "This profile could not be found."}</Text></View></ScreenContainer>;
   }
+
+  const participant = profile ?? { id: participantId, name: copy.unknownUser, handle: "unknown", bio: "", initials: "?", avatarColor: "#365C57", region: "India", followers: 0, following: 0 };
 
   return (
     <ScreenContainer safeAreaClassName="bg-background" className="bg-background">
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined} keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.iconButton} accessibilityLabel={language === "bn" ? "ফিরে যান" : "Go back"}><MaterialIcons name="arrow-back" size={22} color={C.inkNavy} /></Pressable>
-          <Avatar profile={participant} size={40} />
-          <View style={styles.headerCopy}><Text style={[styles.name, { fontFamily: mediumFont }]}>{participant.name}</Text><Text style={[styles.handle, { fontFamily: bodyFont }]}>@{participant.handle} · {participant.region}</Text></View>
+          {loading && !profile ? (
+            <View style={[styles.skeletonAvatar, { width: 40, height: 40, borderRadius: 20 }]} />
+          ) : (
+            <Avatar profile={participant} size={40} />
+          )}
+          <View style={styles.headerCopy}>
+            {loading && !profile ? (
+              <View>
+                <View style={[styles.skeletonLine, { width: 100, height: 16, marginBottom: 4 }]} />
+                <View style={[styles.skeletonLine, { width: 140, height: 12 }]} />
+              </View>
+            ) : (
+              <>
+                <Text style={[styles.name, { fontFamily: mediumFont }]}>{participant.name}</Text>
+                <Text style={[styles.handle, { fontFamily: bodyFont }]}>@{participant.handle} · {participant.region}</Text>
+              </>
+            )}
+          </View>
           <Pressable onPress={() => router.push({ pathname: "/(tabs)/profile", params: { id: participant.id } })} style={styles.iconButton} accessibilityLabel={language === "bn" ? "Profile দেখুন" : "View profile"}><MaterialIcons name="person-outline" size={22} color={C.inkNavy} /></Pressable>
         </View>
         <ScrollView contentContainerStyle={styles.messages} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <View style={styles.intro}><View style={styles.introAvatar}><Avatar profile={participant} size={56} /></View><Text style={[styles.introTitle, { fontFamily: mediumFont }]}>{participant.name}</Text><Text style={[styles.introText, { fontFamily: bodyFont }]}>{language === "bn" ? "এই conversation শুধু আপনারা দুজন দেখতে পারবেন।" : "Only you and this person can see this conversation."}</Text></View>
+          <View style={styles.intro}>
+            <View style={styles.introAvatar}>
+              {loading && !profile ? (
+                <View style={[styles.skeletonAvatar, { width: 56, height: 56, borderRadius: 28 }]} />
+              ) : (
+                <Avatar profile={participant} size={56} />
+              )}
+            </View>
+            {loading && !profile ? (
+              <View style={[styles.skeletonLine, { width: 120, height: 20, marginTop: 10, marginBottom: 4 }]} />
+            ) : (
+              <Text style={[styles.introTitle, { fontFamily: mediumFont }]}>{participant.name}</Text>
+            )}
+            <Text style={[styles.introText, { fontFamily: bodyFont }]}>{language === "bn" ? "এই conversation শুধু আপনারা দুজন দেখতে পারবেন।" : "Only you and this person can see this conversation."}</Text>
+          </View>
           {messages.map((message) => {
             const mine = message.senderId === currentUser.id;
             return <View key={message.id} style={[styles.messageRow, mine && styles.messageRowMine]}><View style={[styles.bubble, mine ? styles.myBubble : styles.theirBubble]}><Text style={[styles.bubbleText, mine && styles.myBubbleText, { fontFamily: bodyFont }]}>{message.body}</Text><Text style={[styles.messageTime, mine && styles.myMessageTime, { fontFamily: bodyFont }]}>{message.syncStatus === "pending" ? (language === "bn" ? "অফলাইনে রাখা হয়েছে" : "Queued offline") : message.createdAt}</Text></View></View>;
@@ -117,4 +150,6 @@ const styles = StyleSheet.create({
   sendDisabled: { backgroundColor: C.slate },
   invalid: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30 },
   invalidText: { color: C.slate, fontSize: 15 },
+  skeletonAvatar: { backgroundColor: C.primaryContainer },
+  skeletonLine: { backgroundColor: C.primaryContainer, borderRadius: 6 },
 });

@@ -6,14 +6,15 @@ import { Avatar } from "@/components/apongram/Avatar";
 import { ScreenContainer } from "@/components/screen-container";
 import { Colors } from "@/constants/theme";
 import { currentUser } from "@/lib/apongram/mock-data";
-import { getMessageParticipant, getMessageThreads, type MessageThread } from "@/lib/apongram/messages";
+import { getMessageThreads, type MessageThread } from "@/lib/apongram/messages";
 import { useLanguage } from "@/lib/apongram/LanguageContext";
+import { useParticipants } from "@/lib/apongram/useParticipants";
 
 const C = Colors.light;
 
 export default function MessagesScreen() {
   const router = useRouter();
-  const { language } = useLanguage();
+  const { language, copy } = useLanguage();
   const [threads, setThreads] = useState<MessageThread[]>([]);
   const bodyFont = language === "bn" ? "HindSiliguri" : "HindSiliguriLatin";
   const mediumFont = language === "bn" ? "HindSiliguriSemiBold" : "HindSiliguriLatinSemiBold";
@@ -23,6 +24,9 @@ export default function MessagesScreen() {
     void getMessageThreads().then(setThreads);
   }, []);
   useFocusEffect(useCallback(() => { loadThreads(); }, [loadThreads]));
+
+  const participantIds = Array.from(new Set(threads.map((t) => t.participantId)));
+  const { profiles, loading } = useParticipants(participantIds);
 
   const unreadCount = threads.reduce((total, thread) => total + thread.messages.filter((message) => message.senderId !== currentUser.id && !message.read).length, 0);
 
@@ -46,10 +50,23 @@ export default function MessagesScreen() {
           <Text style={[styles.privacyText, { fontFamily: bodyFont }]}>{language === "bn" ? "আপনার message শুধু প্রাপক দেখতে পারবেন।" : "Only you and the recipient can see these messages."}</Text>
         </View>
         {threads.length ? <View style={styles.list}>{threads.map((thread) => {
-          const participant = getMessageParticipant(thread.participantId);
-          if (!participant) return null;
+          const resolved = profiles.get(thread.participantId);
+          const participant = resolved ?? { id: thread.participantId, name: copy.unknownUser, handle: "unknown", bio: "", initials: "?", avatarColor: "#365C57", region: "India", followers: 0, following: 0 };
           const last = thread.messages[thread.messages.length - 1];
           const unread = thread.messages.some((message) => message.senderId !== currentUser.id && !message.read);
+
+          if (loading && !resolved) {
+            return (
+              <View key={thread.id} style={styles.row}>
+                <View style={[styles.skeletonAvatar, { width: 48, height: 48, borderRadius: 24 }]} />
+                <View style={styles.rowCopy}>
+                  <View style={[styles.skeletonLine, { width: 120, height: 16, marginBottom: 8 }]} />
+                  <View style={[styles.skeletonLine, { width: 200, height: 12 }]} />
+                </View>
+              </View>
+            );
+          }
+
           return (
             <Pressable key={thread.id} onPress={() => router.push({ pathname: "/messages/[id]" as never, params: { id: participant.id } })} style={[styles.row, unread && styles.unreadRow]} accessibilityRole="button">
               <Avatar profile={participant} size={48} />
@@ -91,4 +108,6 @@ const styles = StyleSheet.create({
   emptyBody: { color: C.slate, fontSize: 13, lineHeight: 20, textAlign: "center", marginTop: 7 },
   discoverButton: { backgroundColor: C.terracotta, borderRadius: 24, paddingHorizontal: 22, paddingVertical: 13, marginTop: 22 },
   discoverButtonText: { color: C.ivory, fontSize: 13, fontWeight: "800" },
+  skeletonAvatar: { backgroundColor: C.primaryContainer },
+  skeletonLine: { backgroundColor: C.primaryContainer, borderRadius: 6 },
 });
