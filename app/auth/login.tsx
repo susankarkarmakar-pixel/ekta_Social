@@ -2,14 +2,14 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { BrandWaves } from "@/components/brand/BrandWaves";
 import { ScreenContainer } from "@/components/screen-container";
 import { Colors } from "@/constants/theme";
 import { isValidEmailAddress } from "@/lib/apongram/email-validation";
 import { getStoredProfile, syncProfileToSupabase } from "@/lib/apongram/profile-store";
-import { completeGoogleOAuthRedirect, completeSupabaseRedirect, getGoogleOAuthUrl, getSupabaseAccessToken, resendSignupVerification, signInWithEmail, signUpWithEmail } from "@/lib/apongram/supabase-auth";
+import { completeGoogleOAuthRedirect, getGoogleOAuthUrl, getSupabaseAccessToken, resendSignupVerification, signInWithEmail, signUpWithEmail } from "@/lib/apongram/supabase-auth";
 import { supabaseConfig } from "@/lib/apongram/supabase-config";
 import { useLanguage } from "@/lib/apongram/LanguageContext";
 
@@ -29,7 +29,6 @@ export default function LoginScreen() {
   const [busyAction, setBusyAction] = useState<BusyAction>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const handledAuthRedirect = useRef<string | null>(null);
   const bodyFont = language === "bn" ? "HindSiliguri" : "HindSiliguriLatin";
   const mediumFont = language === "bn" ? "HindSiliguriSemiBold" : "HindSiliguriLatinSemiBold";
   const headingFont = language === "bn" ? "NotoSerifBengaliBold" : "Fraunces";
@@ -46,44 +45,17 @@ export default function LoginScreen() {
     return () => { active = false; };
   }, [router]);
 
-  const finishSignedIn = useCallback(async () => {
-    const profile = await getStoredProfile();
-    await syncProfileToSupabase(profile);
-    router.replace("/(tabs)");
-  }, [router]);
-
-  useEffect(() => {
-    const handleAuthRedirect = async (url: string | null) => {
-      if (!url || !/(?:access_token|refresh_token|error|error_description|error_code)=/.test(url)) return;
-      if (handledAuthRedirect.current === url) return;
-      handledAuthRedirect.current = url;
-      setBusyAction("email");
-      setError("");
-      try {
-        await completeSupabaseRedirect(url);
-        await finishSignedIn();
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : (language === "bn" ? "Verification link দিয়ে সাইন ইন সম্পূর্ণ করা যায়নি।" : "Verification link sign-in could not be completed."));
-      } finally {
-        setBusyAction(null);
-      }
-    };
-
-    let subscription: ReturnType<typeof Linking.addEventListener> | undefined;
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      void handleAuthRedirect(window.location.href);
-    } else {
-      void Linking.getInitialURL().then(handleAuthRedirect).catch(() => undefined);
-      subscription = Linking.addEventListener("url", ({ url }) => void handleAuthRedirect(url));
-    }
-    return () => subscription?.remove();
-  }, [language, finishSignedIn]);
-
   const changeMode = (next: AuthMode) => {
     setMode(next);
     setError("");
     setNotice("");
     setVerificationPending(false);
+  };
+
+  const finishSignedIn = async () => {
+    const profile = await getStoredProfile();
+    await syncProfileToSupabase(profile);
+    router.replace("/(tabs)");
   };
 
   const submitEmail = async () => {
@@ -132,9 +104,7 @@ export default function LoginScreen() {
     setBusyAction("google");
     setError("");
     try {
-      const redirectTo = Platform.OS === "web" && typeof window !== "undefined"
-        ? new URL("/oauth/callback", window.location.origin).toString()
-        : Linking.createURL("oauth/callback");
+      const redirectTo = Linking.createURL("oauth/callback");
       const result = await WebBrowser.openAuthSessionAsync(getGoogleOAuthUrl(redirectTo), redirectTo);
       if (result.type !== "success" || !result.url) return;
       await completeGoogleOAuthRedirect(result.url);

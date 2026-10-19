@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomBrandWave, TopBrandWave } from "@/components/brand/BrandWaves";
-import { useLanguage } from "@/lib/apongram/LanguageContext";
 
 /* eslint-disable react-hooks/refs -- Animated.Value refs are stable animation handles. */
 type LaunchAnimationProps = {
@@ -22,15 +21,14 @@ const COLORS = {
   background: "#FBF7F0",
   ink: "#1E1B16",
   muted: "#6B6153",
-  saffron: "#C85A3A", // matched terracotta
+  saffron: "#E96B35",
   gold: "#F4B83F",
-  green: "#1F6F6B", // matched green secondary accent
+  green: "#27864F",
 };
 const useNativeDriver = Platform.OS !== "web";
 
 export function LaunchAnimation({ onFinished }: LaunchAnimationProps) {
   const insets = useSafeAreaInsets();
-  const { language } = useLanguage();
   const [reducedMotion, setReducedMotion] = useState<boolean | null>(() => {
     if (Platform.OS === "web" && typeof window !== "undefined") {
       return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -43,9 +41,9 @@ export function LaunchAnimation({ onFinished }: LaunchAnimationProps) {
   const sparkOpacity = useRef([0, 1, 2].map(() => new Animated.Value(0))).current;
   const sparkScale = useRef([0, 1, 2].map(() => new Animated.Value(0.55))).current;
   const illustrationOpacity = useRef(new Animated.Value(0)).current;
-  const illustrationScale = useRef(new Animated.Value(0.88)).current;
+  const illustrationScale = useRef(new Animated.Value(0.92)).current;
   const wordmarkOpacity = useRef(new Animated.Value(0)).current;
-  const wordmarkY = useRef(new Animated.Value(8)).current;
+  const wordmarkY = useRef(new Animated.Value(9)).current;
   const detailsOpacity = useRef(new Animated.Value(0)).current;
   const detailsY = useRef(new Animated.Value(6)).current;
   const loaderOpacity = useRef([0, 1, 2].map(() => new Animated.Value(1))).current;
@@ -85,55 +83,48 @@ export function LaunchAnimation({ onFinished }: LaunchAnimationProps) {
     const sequence = reducedMotion
       ? Animated.sequence([
           Animated.parallel([
-            timing(waveOpacity, 1, 350),
-            timing(illustrationOpacity, 1, 350),
-            timing(illustrationScale, 1, 350), // Fallback will just apply it quickly
-            timing(wordmarkOpacity, 1, 350),
-            timing(wordmarkY, 0, 350),
-            timing(detailsOpacity, 1, 350),
-            ...sparkOpacity.map((value) => timing(value, 1, 350)),
+            timing(waveOpacity, 1, 240),
+            timing(illustrationOpacity, 1, 260),
+            timing(illustrationScale, 1, 260),
+            timing(wordmarkOpacity, 1, 260),
+            timing(wordmarkY, 0, 260),
+            timing(detailsOpacity, 1, 280),
+            ...sparkOpacity.map((value) => timing(value, 1, 240)),
           ]),
-          Animated.delay(900),
-          Animated.timing(overlayOpacity, { toValue: 0, duration: 500, useNativeDriver }),
+          Animated.delay(90),
+          Animated.timing(overlayOpacity, { toValue: 0, duration: 210, useNativeDriver }),
         ])
       : Animated.sequence([
-          // Initial logo
           Animated.parallel([
-            timing(waveOpacity, 1, 350),
-            timing(illustrationOpacity, 1, 350),
-            timing(illustrationScale, 1, 350),
-          ]),
-          // Accent dots / Brand name
-          Animated.parallel([
+            timing(waveOpacity, 1, 440),
             timing(topWaveY, 0, 520),
             timing(bottomWaveY, 0, 520),
             Animated.stagger(
               90,
               sparkOpacity.map((value, index) =>
                 Animated.parallel([
-                  timing(value, 1, 470),
-                  timing(sparkScale[index]!, 1, 470),
+                  timing(value, 1, 250),
+                  timing(sparkScale[index]!, 1, 250),
                 ]),
               ),
             ),
-            Animated.sequence([
-              Animated.delay(150),
-              Animated.parallel([
-                timing(wordmarkOpacity, 1, 450),
-                timing(wordmarkY, 0, 450),
-              ])
-            ]),
           ]),
-          // Company line
           Animated.parallel([
-            timing(detailsOpacity, 1, 400),
-            timing(detailsY, 0, 400),
+            timing(illustrationOpacity, 1, 440),
+            timing(illustrationScale, 1, 440),
           ]),
-          Animated.delay(600), // Hold
-          // Exit
+          Animated.parallel([
+            timing(wordmarkOpacity, 1, 320),
+            timing(wordmarkY, 0, 320),
+          ]),
+          Animated.parallel([
+            timing(detailsOpacity, 1, 270),
+            timing(detailsY, 0, 270),
+          ]),
+          Animated.delay(420),
           Animated.timing(overlayOpacity, {
             toValue: 0,
-            duration: 550,
+            duration: 350,
             easing: Easing.inOut(Easing.cubic),
             useNativeDriver,
           }),
@@ -205,7 +196,7 @@ export function LaunchAnimation({ onFinished }: LaunchAnimationProps) {
         </View>
 
         <Animated.View style={{ opacity: wordmarkOpacity, transform: [{ translateY: wordmarkY }] }}>
-          <Text style={styles.wordmark}>{language === "bn" ? "একতা" : "eKta Social"}</Text>
+          <Text style={styles.wordmark}>একতা</Text>
         </Animated.View>
         <Animated.View style={[styles.brandDetails, { opacity: detailsOpacity, transform: [{ translateY: detailsY }] }]}>
           <View style={styles.tricolorUnderline} accessibilityElementsHidden>
@@ -222,9 +213,7 @@ export function LaunchAnimation({ onFinished }: LaunchAnimationProps) {
         </Animated.View>
       </View>
 
-      <Animated.Text style={[styles.footer, { bottom: Math.max(insets.bottom + 18, 28), opacity: detailsOpacity }]}>
-        Sanket Pixel Technologies
-      </Animated.Text>
+      <Text style={[styles.footer, { bottom: Math.max(insets.bottom + 18, 28) }]}>Sanket Pixel Technologies</Text>
     </Animated.View>
   );
 }

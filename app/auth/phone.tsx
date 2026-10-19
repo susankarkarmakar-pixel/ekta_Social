@@ -163,9 +163,7 @@ export default function PhoneAuthScreen() {
     setBusyAction("google");
     setError("");
     try {
-      const redirectTo = Platform.OS === "web" && typeof window !== "undefined"
-        ? new URL("/oauth/callback", window.location.origin).toString()
-        : Linking.createURL("oauth/callback");
+      const redirectTo = Linking.createURL("oauth/callback");
       const result = await WebBrowser.openAuthSessionAsync(getGoogleOAuthUrl(redirectTo), redirectTo);
       if (result.type !== "success" || !result.url) return;
       await completeGoogleOAuthRedirect(result.url);
