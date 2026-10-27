@@ -107,7 +107,6 @@ export const copy = {
     languageTitle: "ভাষা", languageAvailable: "এখন বাংলা ও ইংরেজি চালু", languagePlanned: "ধাপে ধাপে অনুবাদ ও যাচাই হচ্ছে", languageSave: "ভাষা বদলান",
     reportTitle: "পোস্ট রিপোর্ট করুন", reportBody: "এই পোস্টটি কেন রিপোর্ট করছেন?", reportSpam: "স্প্যাম বা বিভ্রান্তিকর", reportAbuse: "হয়রানি বা ঘৃণা", reportSafety: "নিরাপত্তার সমস্যা", reportSubmit: "রিপোর্ট পাঠান", reportThanks: "রিপোর্ট নেওয়া হয়েছে।",
     offlineTitle: "ইন্টারনেট নেই", offlineBody: "ইন্টারনেট ফিরলে লাইক ও মন্তব্য আবার চালু হবে।", offlineBanner: "অফলাইন মোড · নতুন কাজ পরে পাঠানো হবে", feedEmptyTitle: "আপনার ফিড এখনও ফাঁকা", feedEmptyBody: "আপনার এলাকার মানুষকে ফলো করুন বা প্রথম পোস্টটি লিখুন।", feedErrorTitle: "ফিড লোড করা যায়নি", feedErrorBody: "ইন্টারনেট সংযোগটি দেখে আবার চেষ্টা করুন।", otpErrorTitle: "কোডটি মেলেনি", otpErrorBody: "৬ সংখ্যার কোডটি আবার দেখে চেষ্টা করুন।", retry: "আবার চেষ্টা করুন",
-    unknownUser: "অজানা ব্যবহারকারী",
   },
   en: {
     home: "Feed", discover: "Discover", create: "Post", alerts: "Alerts", profile: "Profile",
@@ -140,7 +139,6 @@ export const copy = {
     languageTitle: "Language", languageAvailable: "Bengali and English are available", languagePlanned: "Translations are being reviewed in phases", languageSave: "Change language",
     reportTitle: "Report this post", reportBody: "Why are you reporting this post?", reportSpam: "Spam or misleading", reportAbuse: "Harassment or hate", reportSafety: "Safety concern", reportSubmit: "Submit report", reportThanks: "Your report was received.",
     offlineTitle: "You’re offline", offlineBody: "Likes and comments will resume when internet returns.", offlineBanner: "Offline mode · new actions will wait", feedEmptyTitle: "Your feed is still quiet", feedEmptyBody: "Follow people nearby or write the first post.", feedErrorTitle: "We couldn’t load your feed", feedErrorBody: "Check your connection and try again.", otpErrorTitle: "That code didn’t match", otpErrorBody: "Check the 6-digit code and try again.", retry: "Try again",
-    unknownUser: "Unknown user",
   },
 } as const;
 
