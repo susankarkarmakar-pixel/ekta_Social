@@ -254,7 +254,7 @@ export default function PhoneAuthScreen() {
             <View style={styles.page}>
               <View style={styles.topRow}>
                 <Text style={styles.topBrand}>eKta Social</Text>
-                <Pressable onPress={() => { setError(""); toggleLanguage(); }} style={styles.language} accessibilityRole="button" accessibilityLabel={language === "bn" ? "Switch language to English" : "বাংলা ভাষায় পরিবর্তন করুন"}>
+                <Pressable onPress={() => { setError(""); toggleLanguage(); }} style={[styles.language, { minHeight: 44 }]} accessibilityRole="button" accessibilityLabel={language === "bn" ? "Switch language to English" : "বাংলা ভাষায় পরিবর্তন করুন"}>
                   <MaterialIcons name="language" size={15} color={LIGHT.terracotta} />
                   <Text style={[styles.languageText, { fontFamily: mediumFont }]}>{language === "bn" ? "বাং · EN" : "EN · বাং"}</Text>
                 </Pressable>
@@ -274,7 +274,7 @@ export default function PhoneAuthScreen() {
                   <View style={[styles.underlineSegment, { backgroundColor: "#F1B941" }]} />
                   <View style={[styles.underlineSegment, { backgroundColor: "#27864F" }]} />
                 </View>
-                <Text style={styles.tagline}>Your Community, Connected</Text>
+                <Text style={[styles.tagline, { fontFamily: bodyFont }]}>{copy.authTagline}</Text>
               </View>
 
               {verified ? (
@@ -289,6 +289,9 @@ export default function PhoneAuthScreen() {
                 </View>
               ) : (
                 <View style={styles.formCard}>
+                  <Text style={[styles.formTitle, { fontFamily: mediumFont }]}>{copy.signIn}</Text>
+                  <Text style={[styles.formIntro, { fontFamily: bodyFont }]}>{copy.signInIntro}</Text>
+                  <Text style={[styles.formAccountNote, { fontFamily: bodyFont, fontSize: language === "bn" ? 13 : 12 }]}>{copy.otpAccountNote}</Text>
                   <Pressable
                     onPress={() => void signInWithGoogle()}
                     disabled={busy}
@@ -388,6 +391,14 @@ export default function PhoneAuthScreen() {
                     </View>
                   ) : null}
 
+                  <Pressable
+                    onPress={() => router.push("/auth/login")}
+                    style={styles.alternateLoginButton}
+                    accessibilityRole="button"
+                  >
+                    <Text style={[styles.alternateLoginText, { fontFamily: mediumFont, fontSize: language === "bn" ? 13 : 12 }]}>{copy.passwordSignIn}</Text>
+                  </Pressable>
+
                   {error ? <Text style={[styles.error, { fontFamily: bodyFont }]} accessibilityRole="alert">{error}</Text> : null}
                   {!supabaseConfig.isConfigured && !error ? <Text style={[styles.demoNote, { fontFamily: bodyFont }]}>{copy.demoModeText}</Text> : null}
 
@@ -445,6 +456,11 @@ export default function PhoneAuthScreen() {
 }
 
 const styles = StyleSheet.create({
+  formTitle: { color: LIGHT.inkNavy, fontSize: 19, textAlign: "center", marginBottom: 4 },
+  formIntro: { color: LIGHT.slate, fontSize: 13, lineHeight: 19, textAlign: "center", marginBottom: 14 },
+  formAccountNote: { color: LIGHT.slate, lineHeight: 18, textAlign: "center", marginTop: -7, marginBottom: 13 },
+  alternateLoginButton: { minHeight: 44, alignItems: "center", justifyContent: "center", marginTop: 2 },
+  alternateLoginText: { color: LIGHT.terracotta, textAlign: "center", fontWeight: "700" },
   shell: { flex: 1, backgroundColor: "#FBF7F0", overflow: "hidden" },
   keyboard: { flex: 1 },
   scrollContent: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 7, paddingBottom: 16 },
