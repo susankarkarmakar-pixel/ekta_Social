@@ -77,6 +77,8 @@ export type Comment = { id: string; author: Profile; body: string; createdAt: st
 
 export const copy = {
   bn: {
+    greetingMorning: "সুপ্রভাত", greetingAfternoon: "শুভ অপরাহ্ন", greetingEvening: "শুভ সন্ধ্যা", greetingNight: "শুভ রাত্রি",
+    forYou: "আপনার জন্য", messages: "বার্তা", localCommunity: "আপনার স্থানীয় কমিউনিটি", shareLocalUpdate: "স্থানীয় আপডেট শেয়ার করুন", shareUpdate: "আপডেট শেয়ার করুন", communityUpdates: "পাড়ার আপডেট", feedLoadingMore: "আরও আপডেট আসছে...", feedCaughtUp: "এখানেই আপাতত শেষ।", feedUpdated: "ফিড আপডেট হয়েছে",
     home: "ফিড", discover: "খুঁজুন", create: "পোস্ট", alerts: "বার্তা", profile: "প্রোফাইল",
     goodMorning: "আপনার এলাকার খবর", feedIntro: "যাঁদের আপনি চেনেন, তাঁদের কাছ থেকে আজকের আপডেট।",
     whatHappened: "আজ আপনার এলাকায় কী ঘটছে?", photo: "ছবি", share: "শেয়ার করুন", latest: "সাম্প্রতিক", refreshFeed: "ফিড রিফ্রেশ করুন", pullToRefresh: "রিফ্রেশ করতে নিচে টানুন", releaseToRefresh: "রিফ্রেশ করতে ছেড়ে দিন",
@@ -109,6 +111,8 @@ export const copy = {
     offlineTitle: "ইন্টারনেট নেই", offlineBody: "ইন্টারনেট ফিরলে লাইক ও মন্তব্য আবার চালু হবে।", offlineBanner: "অফলাইন মোড · নতুন কাজ পরে পাঠানো হবে", feedEmptyTitle: "আপনার ফিড এখনও ফাঁকা", feedEmptyBody: "আপনার এলাকার মানুষকে ফলো করুন বা প্রথম পোস্টটি লিখুন।", feedErrorTitle: "ফিড লোড করা যায়নি", feedErrorBody: "ইন্টারনেট সংযোগটি দেখে আবার চেষ্টা করুন।", otpErrorTitle: "কোডটি মেলেনি", otpErrorBody: "৬ সংখ্যার কোডটি আবার দেখে চেষ্টা করুন।", retry: "আবার চেষ্টা করুন",
   },
   en: {
+    greetingMorning: "Good morning", greetingAfternoon: "Good afternoon", greetingEvening: "Good evening", greetingNight: "Good night",
+    forYou: "For you", messages: "Messages", localCommunity: "Your local community", shareLocalUpdate: "Share a local update", shareUpdate: "Share an update", communityUpdates: "Community updates", feedLoadingMore: "Loading more updates…", feedCaughtUp: "You’re all caught up for now.", feedUpdated: "Feed updated",
     home: "Feed", discover: "Discover", create: "Post", alerts: "Alerts", profile: "Profile",
     goodMorning: "Your local feed", feedIntro: "Fresh updates from people and places you already know.",
     whatHappened: "What’s happening in your area?", photo: "Photo", share: "Share", latest: "Latest", refreshFeed: "Refresh feed", pullToRefresh: "Pull down to refresh", releaseToRefresh: "Release to refresh",

@@ -26,6 +26,7 @@ import { useFeedPreferences } from "@/lib/apongram/FeedPreferencesContext";
 import { useLanguage } from "@/lib/apongram/LanguageContext";
 import { useFeedController } from "@/lib/apongram/useFeedController";
 import { useStoryController } from "@/lib/apongram/useStoryController";
+import { getGreetingCopyKey } from "@/lib/apongram/greeting";
 import type { Post } from "@/lib/apongram/types";
 
 const C = {
@@ -45,6 +46,7 @@ export default function HomeScreen() {
   const mediumFont =
     language === "bn" ? "HindSiliguriSemiBold" : "HindSiliguriLatinSemiBold";
   const headingFont = language === "bn" ? "NotoSerifBengaliBold" : "Fraunces";
+  const greeting = copy[getGreetingCopyKey(new Date())];
   const { preferences } = useFeedPreferences();
   const story = useStoryController({
     onCreateStory: () =>
@@ -73,7 +75,6 @@ export default function HomeScreen() {
     handleWebTouchEnd,
     handleCardLayout,
     toggleLike,
-    repositoryMode,
   } = feedState;
 
   useFocusEffect(
@@ -151,7 +152,7 @@ export default function HomeScreen() {
             onPress={() => router.push("/messages" as never)}
             style={styles.iconAction}
             accessibilityRole="button"
-            accessibilityLabel={language === "bn" ? "বার্তা" : "Messages"}
+            accessibilityLabel={copy.messages}
             hitSlop={8}
           >
             <MaterialIcons name="chat-bubble-outline" size={21} color={C.ink} />
@@ -223,9 +224,7 @@ export default function HomeScreen() {
           <View style={heroStyles.eyebrow}>
             <View style={heroStyles.dot} />
             <Text style={[heroStyles.eyebrowText, { fontFamily: mediumFont }]}>
-              {language === "bn"
-                ? "আপনার স্থানীয় কমিউনিটি"
-                : "YOUR LOCAL COMMUNITY"}
+              {copy.localCommunity}
             </Text>
           </View>
           <Text
@@ -235,7 +234,7 @@ export default function HomeScreen() {
               { fontFamily: headingFont },
             ]}
           >
-            {copy.goodMorning}
+            {greeting}
           </Text>
           <Text
             style={[
@@ -250,15 +249,11 @@ export default function HomeScreen() {
             onPress={() => router.push("/(tabs)/create")}
             style={heroStyles.action}
             accessibilityRole="button"
-            accessibilityLabel={
-              language === "bn"
-                ? "স্থানীয় আপডেট শেয়ার করুন"
-                : "Share a local update"
-            }
+            accessibilityLabel={copy.shareLocalUpdate}
           >
             <MaterialIcons name="edit" size={15} color={C.card} />
             <Text style={[heroStyles.actionText, { fontFamily: mediumFont }]}>
-              {language === "bn" ? "আপডেট শেয়ার করুন" : "Share an update"}
+              {copy.shareUpdate}
             </Text>
             <MaterialIcons name="arrow-forward" size={15} color={C.card} />
           </Pressable>
@@ -274,18 +269,9 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {repositoryMode === "demo" && __DEV__ ? (
-        <View style={styles.demoBanner}>
-          <MaterialIcons name="info-outline" size={17} color={C.terra} />
-          <Text style={[styles.demoText, { fontFamily: bodyFont }]}>
-            {copy.demoModeText}
-          </Text>
-        </View>
-      ) : null}
-
       <View style={styles.feedHeader}>
         <Text style={[styles.sectionTitle, { fontFamily: headingFont }]}>
-          {language === "bn" ? "পাড়ার আপডেট" : "Community updates"}
+          {copy.communityUpdates}
         </Text>
       </View>
       <ScrollView
@@ -302,9 +288,7 @@ export default function HomeScreen() {
           ]}
           accessibilityRole="button"
           accessibilityState={{ selected: feedMode === "relevant" }}
-          accessibilityLabel={
-            language === "bn" ? "প্রাসঙ্গিক ফিড" : "For you feed"
-          }
+          accessibilityLabel={copy.forYou}
         >
           <Text
             style={[
@@ -313,7 +297,7 @@ export default function HomeScreen() {
               feedMode === "relevant" && styles.feedModeTextActive,
             ]}
           >
-            {language === "bn" ? "প্রাসঙ্গিক" : "For you"}
+            {copy.forYou}
           </Text>
         </Pressable>
         <Pressable
@@ -399,14 +383,12 @@ export default function HomeScreen() {
     <View style={styles.feedFooter}>
       <ActivityIndicator color={C.terra} />
       <Text style={[styles.footerText, { fontFamily: bodyFont }]}>
-        {language === "bn" ? "আরও আপডেট আসছে..." : "Loading more updates…"}
+        {copy.feedLoadingMore}
       </Text>
     </View>
   ) : !hasMore && feed.length ? (
     <Text style={[styles.endText, { fontFamily: bodyFont }]}>
-      {language === "bn"
-        ? "এখানেই আপাতত শেষ।"
-        : "You’re all caught up for now."}
+      {copy.feedCaughtUp}
     </Text>
   ) : null;
 
@@ -451,7 +433,7 @@ export default function HomeScreen() {
         <View style={styles.toast} accessibilityRole="alert">
           <MaterialIcons name="check-circle" size={18} color="#FFF" />
           <Text style={[styles.toastText, { fontFamily: mediumFont }]}>
-            {language === "bn" ? "ফিড আপডেট হয়েছে" : "Feed updated"}
+            {copy.feedUpdated}
           </Text>
         </View>
       ) : null}
@@ -515,18 +497,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   heroSub: { color: C.muted, fontSize: 13, lineHeight: 19, marginTop: 5 },
-  demoBanner: {
-    backgroundColor: C.primaryContainer,
-    borderRadius: 16,
-    padding: 12,
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-    marginBottom: 11,
-    borderWidth: 1,
-    borderColor: C.line,
-  },
-  demoText: { color: C.muted, fontSize: 11, lineHeight: 16, flex: 1 },
   feedHeader: {
     flexDirection: "row",
     alignItems: "center",
