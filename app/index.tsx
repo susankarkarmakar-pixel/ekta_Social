@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { Colors } from "@/constants/theme";
 import { DEMO_MODE } from "@/lib/apongram/demo-mode";
+import { getEntryRoute } from "@/lib/apongram/auth-routing";
 import { getSupabaseAccessToken } from "@/lib/apongram/supabase-auth";
 
 export default function EntryScreen() {
@@ -19,9 +20,9 @@ export default function EntryScreen() {
 
       try {
         const accessToken = await getSupabaseAccessToken();
-        if (active) router.replace(accessToken ? "/(tabs)" : "/auth/login");
+        if (active) router.replace(getEntryRoute(accessToken));
       } catch {
-        if (active) router.replace("/auth/login");
+        if (active) router.replace(getEntryRoute(null));
       }
     };
 
